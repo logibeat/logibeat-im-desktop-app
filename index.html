@@ -2,8 +2,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=0.75,minimum-scale=0.75"/>
 <title>WebIM-DEMO</title>
+<link rel="stylesheet" href="static/css/bootstrap.css" />
+<link rel="stylesheet" href="static/css/webim.css" />
 <!--sdk-->
 <script src="static/sdk/strophe.js"></script>
 <script src="static/sdk/easemob.im-1.1.js"></script>
@@ -13,8 +15,7 @@
 <!--demo-->
 <script src="static/js/jquery-1.11.1.js"></script>
 <script src="static/js/bootstrap.js"></script>
-<link rel="stylesheet" href="static/css/bootstrap.css" />
-<link rel="stylesheet" href="static/css/webim.css" />
+
 <!--[if lte IE 9]>
     <script src="static/js/jplayer/jquery.jplayer.min.js"></script>
     <script src="static/js/swfupload/swfupload.js"></script>
@@ -293,14 +294,57 @@
         </div>
         <!-- 个人名片-->
         <div id="userinfo">
-            <div id="userhead">
-                <span></span>
+            <div id="userfoot">
+                <span onclick="closeuser()">X</span>
+                <button class="btn btn-warning ">发送消息</button>
+                <button class="btn btn-warning">添加好友</button>
             </div>
-            <div id="userbody"></div>
+            <div id="userhead">
+                <div class="userico">
+                    <img src="./static/img/head/header2.jpg" alt=""/>
+                    <p>孙悟空</p>
+                </div>
+            </div>
+            <div id="userbody">
+                <p class="moudletitle">个人资料</p>
+                <div>
+                    <table class="msgtable">
+                        <tr>
+                            <td>姓名：</td><td>赵云</td>
+                        </tr>
+                        <tr>
+                            <td>手机号：</td><td>15788338833</td>
+                        </tr>
+                        <tr>
+                            <td>车牌号：</td><td>赵云</td>
+                        </tr>
+                        <tr>
+                            <td>姓名：</td><td>赵云</td>
+                        </tr>
+                        <tr>
+                            <td>姓名：</td><td>赵云</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
         </div>
-    </div>
+        <!-- 右键菜单-->
+        <div>
+        <ul id="menu">
+            <li onclick="chakanziliao()"><em class="cut"></em><a href="javascript:void(0);" >查看资料</a></li>
+            <li><em class="copy"></em><a href="javascript:void(0);">删除好友</a></li>
+        </ul>
+        </div>
+        <div>
+        <ul id="menu2">
+            <li><em class="cut"></em><a href="javascript:;">查看资料</a></li>
+            <li><em class="copy"></em><a href="javascript:;">添加好友</a></li>
+        </ul>
+        </div>
 	<input type='file' id="fileInput" style='display:none;'/>
 	<div id='alert' class='em-alert' style='display:none;'><span></span><button>好的</button></div>
 	<script src="static/js/webim.js"></script>
+    <script src="static/js/cssheight.js"></script>
 </body>
 </html>

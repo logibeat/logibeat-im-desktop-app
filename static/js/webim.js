@@ -237,7 +237,7 @@ var showChatUI = function () {
 		"display" : "block"
 	});
 	var login_userEle = document.getElementById("login_user").children[0];
-	login_userEle.innerHTML = curUserId+'<p style="text-align: center">'+curUsername+'</p>';
+	login_userEle.innerHTML ='<p style="text-align: center">'+curUsername+'</p>';
 	login_userEle.setAttribute("title", curUserId);
 };
 //登录之前不显示web对话框
@@ -428,7 +428,9 @@ var getuserinfo=function(HXdata){
 		data: {imGUID:HXdata.name},
 		async:false,
 		success: function(data){
-			data.data.subscription=HXdata.subscription
+			console.log(data)
+			data.data.subscription=HXdata.subscription;
+			data.data.name=data.data.hasOwnProperty("niChen")==true?data.data.niChen:HXdata.name;
 			userncarr.push(data.data);
 		},
 		error: function(data){
@@ -449,23 +451,24 @@ var handleOpen = function(conn) {
 	//获取当前登录人的联系人列表
 	conn.getRoster({
 		success : function(roster) {
-
 			// 页面处理
-			var userarr=[];
+			var userarr1=[];
 
 			for(i=0;i<roster.length;i++){
-				userarr.push(roster[i].name);
+
 				getuserinfo(roster[i]);
+				userarr1.push(roster[i]);
 			}
 
 			hiddenWaitLoginedUI();
 			showChatUI();
 			var curroster;
+			userncarr=userncarr.concat(userarr1)
 
 			for ( var i in userncarr) {
 				var ros = userncarr[i];
 				//both为双方互为好友，要显示的联系人,from我是对方的单向好友
-
+				console.log(userncarr[i])
 				if (ros.subscription == 'both'
 						|| ros.subscription == 'from') {
 					bothRoster.push(ros);
@@ -477,10 +480,9 @@ var handleOpen = function(conn) {
 
 			if (bothRoster.length > 0) {
 				curroster = bothRoster[0];
-				console.log(curroster)
 				buildContactDiv("contractlist", bothRoster);//联系人列表页面处理
 				if (curroster)
-					setCurrentContact(curroster.niChen);//页面处理将第一个联系人作为当前聊天div
+					setCurrentContact(curroster.name);//页面处理将第一个联系人作为当前聊天div
 			}
 			//获取当前登录人的群组列表
 			conn.listRooms({
@@ -511,7 +513,6 @@ var handleOpen = function(conn) {
 		url: tempurl+"unicron/ent/Ent/api/Driver/DriverFriend.htm",
 		data: {CoopType:40},
 		success: function(data){
-			console.log(data);
 			for(i=0;i<data.data.length;i++){
 				var momogrouplistUL = document.getElementById("momogrouplistUL");
 				var lielem = document.createElement("li");
@@ -908,6 +909,7 @@ var logout = function() {
 };
 //设置当前显示的聊天窗口div，如果有联系人则默认选中联系人中的第一个联系人，如没有联系人则当前div为null-nouser
 var setCurrentContact = function(defaultUserId) {
+
 	showContactChatDiv(defaultUserId);
 	if (curChatUserId != null) {
 		hiddenContactChatDiv(curChatUserId);
@@ -920,15 +922,20 @@ var setCurrentContact = function(defaultUserId) {
 };
 //构造联系人列表
 var buildContactDiv = function(contactlistDivId, roster) {
+	console.log(roster)
 	var uielem = document.getElementById("contactlistUL");
 	var cache = {};
 	for (i = 0; i < roster.length; i++) {
 		if (!(roster[i].subscription == 'both' || roster[i].subscription == 'from')) {
 			continue;
 		}
+
 		var jid = roster[i].jid;
-		//var userName = jid.substring(jid.indexOf("_") + 1).split("@")[0];
-		var userName = roster[i].hasOwnProperty("niChen")==true?roster[i].niChen:"非法用户，请从app注册"
+		if(jid==undefined){
+			continue
+		}
+		var userName1 = jid.substring(jid.indexOf("_") + 1).split("@")[0];
+		var userName = roster[i].hasOwnProperty("niChen")==true?roster[i].niChen:userName1
 		if (userName in cache) {
 			continue;
 		}
@@ -1022,7 +1029,7 @@ var showContactChatDiv = function(chatUserId) {
 	if (contactLi == null) {
 		return;
 	}
-	contactLi.style.backgroundColor = "#33CCFF";
+	contactLi.style.backgroundColor = "#faba60";
 	var dispalyTitle = null;//聊天窗口显示当前对话人名称
 	if (chatUserId.indexOf(groupFlagMark) >= 0) {
 		dispalyTitle = "群组" + $(contactLi).attr('displayname') + "聊天中";
@@ -1758,6 +1765,7 @@ var appendMsg = function(who, contact, message) {
 	}
 	msgContentDiv.appendChild(lineDiv);
 	if (create) {
+
 		document.getElementById(msgCardDivId).appendChild(msgContentDiv);
 	}
 	if(type == 'audio' && msg.audioShim) {
@@ -1917,10 +1925,12 @@ var removeFriendDomElement = function(userToDel, local) {
 	if (chatDiv) {
 		chatDiv.remove();
 	}
+
 	if (curChatUserId != userToDel) {
 		return;
 	} else {
 		var displayName = '';
+
 		//将第一个联系人作为当前聊天div
 		if (bothRoster.length > 0) {
 			curChatUserId = bothRoster[0].name;
@@ -1929,6 +1939,7 @@ var removeFriendDomElement = function(userToDel, local) {
 			});
 			var currentDiv = getContactChatDiv(curChatUserId)
 					|| createContactChatDiv(curChatUserId);
+
 			document.getElementById(msgCardDivId).appendChild(currentDiv);
 			$(currentDiv).css({
 				"display" : "block"
@@ -2066,3 +2077,81 @@ Easemob.im.EMOTIONS = {
         '[(D)]': 'ee_35.png'
     }
 };
+var nameid="";
+var oMenu = document.getElementById("menu");
+var aLi = oMenu.getElementsByTagName("li");
+//加载后隐藏自定义右键菜单
+oMenu.style.display = "none";
+//菜单鼠标移入/移出样式
+for (i = 0; i < aLi.length; i++)
+{
+	//鼠标移入样式
+	aLi[i].onmouseover = function ()
+	{
+		this.className = "active"
+	};
+	//鼠标移出样式
+	aLi[i].onmouseout = function ()
+	{
+		this.className = ""
+	}
+}
+//自定义菜单
+document.getElementById("collapseOne").oncontextmenu = function ()
+{
+	return false;
+}
+$("#collapseOne").on('mousedown','li',function(event)
+//document.getElementById("collapseOne").oncontextmenu = function (event)
+{
+	if( event.button == 2 ) {
+		var event = event || window.event;
+		var style = oMenu.style;
+		style.display = "block";
+		style.top = event.clientY + "px";
+		style.left = event.clientX + "px";
+		nameid=$(this).attr("id");
+	}
+
+});
+var oMenu2 = document.getElementById("menu2");
+var aLi2 = oMenu2.getElementsByTagName("li");
+//加载后隐藏自定义右键菜单
+oMenu2.style.display = "none";
+//菜单鼠标移入/移出样式
+for (i = 0; i < aLi2.length; i++)
+{
+	//鼠标移入样式
+	aLi2[i].onmouseover = function ()
+	{
+		this.className = "active"
+	};
+	//鼠标移出样式
+	aLi2[i].onmouseout = function ()
+	{
+		this.className = ""
+	}
+}
+//自定义菜单
+document.getElementById("momogrouplist").oncontextmenu = function (event)
+{
+	var event = event || window.event;
+	var style1 = oMenu2.style;
+	style1.display = "block";
+	style1.top = event.clientY + "px";
+	style1.left = event.clientX + "px";
+	return false;
+};
+//页面点击后自定义菜单消失
+document.onclick = function ()
+{
+	oMenu.style.display = "none"
+	oMenu2.style.display = "none"
+}
+function chakanziliao(){
+	$("#userinfo").show();
+
+}
+function closeuser(){
+	$("#userinfo").hide();
+}
